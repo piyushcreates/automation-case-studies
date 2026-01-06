@@ -94,6 +94,24 @@ A production-grade fulfillment pipeline triggered by payment success that normal
 
 📁 `paid-report-fulfillment-pipeline/`
 
+### 5. SFAIAHM Course Unlock Automation: Razorpay → Moodle | Payment-Based Course Access**
+
+**Problem:**  
+Manual course activation after payment caused delays, errors, and operational overhead for a paid online course.
+
+**Solution:**  
+An event-driven automation triggered by Razorpay `payment.captured` webhooks that validates payment amounts, provisions users in Moodle, applies plan-based enrolment validity, and sends internal notifications for monitoring.
+
+**Key concepts demonstrated:**
+- Payment webhook handling (Razorpay)
+- Amount-based plan routing
+- LMS user creation and enrolment
+- Time-bound access control via enrolment expiry
+- Ops visibility via Slack and Telegram
+- Legacy CRM sync (documented)
+
+📁 `sfaiahm-course-unlock/`
+
 ---
 
 ## Design Principles
