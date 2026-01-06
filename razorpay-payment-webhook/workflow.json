@@ -1,0 +1,449 @@
+{
+  "name": "Payment Webhook → WhatsApp → CRM → Ops",
+  "nodes": [
+    {
+      "parameters": {
+        "phoneNumberId": "=WHATSAPP_PHONE_ID",
+        "recipientPhoneNumber": "={{ $json.body.payload.payment.entity.contact }}",
+        "template": "=YOUR_TEMPLATE"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        384,
+        80
+      ],
+      "id": "3b87d303-346b-4f8c-baad-c112ba21b80c",
+      "name": "WhatsApp Business Cloud",
+      "webhookId": "0917bae1-b277-4615-95dc-e4365ffa2af1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "Z4RhN8J7G5LnqPPI",
+          "name": "WhatsApp account - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Slack alerts for ops",
+        "height": 391,
+        "width": 617
+      },
+      "id": "aa5f84ae-c8ca-454d-bacb-5b5aa7ebdaa4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        336,
+        400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Send payment success message from WhatsApp API",
+        "height": 347,
+        "width": 389
+      },
+      "id": "692303e7-31a9-4e10-a289-d03ae8d2f8c0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -64
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "OPS_ALERTS",
+          "mode": "id"
+        },
+        "text": "=Received a payment of {{ $('Remove extra 0\\'s').item.json.body.payload.payment.entity.amount }}.\n\nPayment event recorded successfully.\nManual follow-up required for account activation.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "2ba7b875-b985-46e6-bd7d-3e2b11343aca",
+      "name": "course-activation-for-ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        416
+      ],
+      "executeOnce": true,
+      "webhookId": "133cd94d-62a3-4570-a5de-0e47e29e178f",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=SALES_ALERTS",
+          "mode": "id"
+        },
+        "text": "=Received a payment of {{ $('Remove extra 0\\'s').item.json.body.payload.payment.entity.amount }} from  {{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.email }}, {{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.contact }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "4be53b4d-abc0-4762-9c3e-1a1da8754a14",
+      "name": "payment-success-for-sales",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        608
+      ],
+      "executeOnce": true,
+      "webhookId": "bea7cc2c-77e0-4132-8c48-c096863fc0e0",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "payment-webhook",
+        "options": {}
+      },
+      "id": "eb9f3b23-9d09-4d9d-8fbc-9b4e65548ebb",
+      "name": "RazorpayPaymentCaptured",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        336
+      ],
+      "webhookId": "fdffaa54-faf5-40fb-a7ef-a093e86358c3"
+    },
+    {
+      "parameters": {
+        "tableId": "=payments_log",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=pay_id",
+              "fieldValue": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.id }}"
+            },
+            {
+              "fieldId": "=email",
+              "fieldValue": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.email }}"
+            },
+            {
+              "fieldId": "=wa_sent",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "=phone",
+              "fieldValue": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.contact }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -240
+      ],
+      "id": "2f48dcf6-9ada-4338-bd15-f4c5b6a6f599",
+      "name": "entry_to_payments_log_watrue",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "=payments_log",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=pay_id",
+              "fieldValue": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.id }}"
+            },
+            {
+              "fieldId": "=email",
+              "fieldValue": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.email }}"
+            },
+            {
+              "fieldId": "=wa_sent",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "=phone",
+              "fieldValue": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.contact }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        320
+      ],
+      "id": "818a48e7-8327-4e87-b87d-e9ebf2fd9521",
+      "name": "entry_to_payments_log_wafalse",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba5671b9-1221-4d6d-a5e2-3a4e5d502ea1",
+              "name": "body.payload.payment.entity.amount",
+              "value": "={{ $json.body.payload.payment.entity.amount/100 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0d0a80e5-3143-4384-a002-ed712c82944b",
+      "name": "Normalize Amount",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        432,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a710a942-a340-4f0f-b93f-8881a3ab77e0",
+              "leftValue": "={{ $json.messages[0].message_status }}",
+              "rightValue": "accepted",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ef8354f9-5499-4740-b6e1-a489ed3413fc",
+      "name": "Evaluate WhatsApp Delivery",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "additionalFields": {
+          "emailOptions": {
+            "emailProperties": [
+              {
+                "subtype": "personal",
+                "email": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.email }}"
+              }
+            ]
+          },
+          "phoneOptions": {
+            "phoneProperties": [
+              {
+                "subtype": "mobile",
+                "number": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.contact }}"
+              }
+            ]
+          },
+          "tags": [
+            "example"
+          ],
+          "customProperties": {
+            "customProperty": [
+              {
+                "name": "amount",
+                "value": "={{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.amount }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.agileCrm",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -48
+      ],
+      "id": "1b885f26-acbb-4516-b9f8-0a5876ae0e34",
+      "name": "Create / Update CRM Contact",
+      "credentials": {
+        "agileCrmApi": {
+          "id": "SWfUTqdcCU8McyCo",
+          "name": "AgileCRM account - Export"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=ERROR_ALERT",
+          "mode": "id"
+        },
+        "text": "=WhatsApp API failed -  {{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.email }}, {{ $('RazorpayPaymentCaptured').item.json.body.payload.payment.entity.contact }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "5743959b-eba8-4235-ba73-03940745a5f1",
+      "name": "wapi-failed-for-ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        112
+      ],
+      "webhookId": "b44481ae-e297-4a09-b79c-656923870e29",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Business Cloud": {
+      "main": [
+        [
+          {
+            "node": "Evaluate WhatsApp Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "course-activation-for-ops": {
+      "main": [
+        []
+      ]
+    },
+    "RazorpayPaymentCaptured": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Normalize Amount",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Amount": {
+      "main": [
+        [
+          {
+            "node": "course-activation-for-ops",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "payment-success-for-sales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate WhatsApp Delivery": {
+      "main": [
+        [
+          {
+            "node": "entry_to_payments_log_watrue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create / Update CRM Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "wapi-failed-for-ops",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "entry_to_payments_log_wafalse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wapi-failed-for-ops": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60,
+    "errorWorkflow": "nSuHsirH7uMBPzpX",
+    "saveExecutionProgress": true,
+    "availableInMCP": false
+  },
+  "versionId": "c652786c-9f60-48a0-9a13-c6523b6e58cd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b190d774a77c62336d9d3921e7d2d1e3765940e3c528e8ff3b7a9609335cba70"
+  },
+  "id": "pt8WQr3f7XdfEo2F",
+  "tags": []
+}

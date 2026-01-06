@@ -1,0 +1,999 @@
+{
+  "name": "Paid Report Fulfillment Pipeline: Payment → External API → Storage → WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Final Workflow",
+        "height": 1216,
+        "width": 3200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1840,
+        -432
+      ],
+      "typeVersion": 1,
+      "id": "9dfffe19-4504-4eca-a974-bffc8e72725d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "89094666-d86c-4fb3-a0e4-73251dcedc8b",
+              "leftValue": "={{ $json.body.payload.payment.entity.amount }}",
+              "rightValue": 50100,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1408,
+        0
+      ],
+      "id": "ba8cd67a-156d-4f68-bfe3-402d30b0286b",
+      "name": "Validate Payment Plan/Status"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "34dfb491-6204-483d-ac79-af92ea0a2385",
+              "name": "body.payload.payment.entity.notes.boy_time_of_birth",
+              "value": "={{ \n  (function(raw) {\n\n    // If empty, return null\n    if (!raw) return null;\n\n    // Convert to string, trim, lowercase\n    let s = String(raw).trim().toLowerCase();\n\n    // --- NORMALIZATION STEPS ---\n\n    // Remove extra spaces\n    s = s.replace(/\\s+/g, ' ');\n\n    // Convert . or - to :\n    // Handles inputs like \"6.30 am\" or \"6-30am\"\n    s = s.replace(/[.,-]/g, ':');\n\n    // Normalise AM/PM forms like \"a m\", \"a.m\", \"am\"\n    s = s.replace(/\\s*([ap])\\.?\\s*m?$/,' $1m');\n\n    // Remove trailing colon \"6:\" → \"6\"\n    s = s.replace(/[:]\\s*$/, '');\n\n    // --- CASE 1: USER ENTERED ONLY HOUR (e.g., \"6\", \"09\") ---\n    if (/^\\d{1,2}$/.test(s)) {\n      let h = parseInt(s,10);\n      return (h<10?'0':'') + h + ':00';     // Convert to HH:00\n    }\n\n    // --- CASE 2: USER ENTERS \"630\" OR \"0930\" ---\n    // Treat last 2 digits as minutes\n    if (/^\\d{3,4}$/.test(s)) {\n      let len = s.length;\n      let hh = parseInt(s.slice(0, len-2),10);\n      let mm = parseInt(s.slice(len-2),10);\n\n      // Only valid if hours ≤ 23 and minutes ≤ 59\n      if (hh<=23 && mm<=59)\n        return (hh<10?'0':'') + hh + ':' + (mm<10?'0':'') + mm;\n    }\n\n    // --- CASE 3: TRY STANDARD TIME FORMATS USING LUXON ---\n    // These formats cover inputs like:\n    // \"6 am\", \"6:30 am\", \"6:5 am\", \"18:30\", \"6pm\", \"06:30\"\n    const formats = ['h:mm a','h:m a','h a','ha','H:mm','H:m','H'];\n    for (const f of formats) {\n      const dt = DateTime.fromFormat(s, f);\n      if (dt.isValid) return dt.toFormat('HH:mm');\n    }\n\n    // If nothing works, return null\n    return null;\n\n  })(\n    // This is your original field\n    $('Razorpay Payment').item.json.body.payload.payment.entity.notes.boy_time_of_birth\n\n  )\n}}",
+              "type": "string"
+            },
+            {
+              "id": "1477ee51-d11d-456f-a6c9-01740fe8482c",
+              "name": "body.payload.payment.entity.notes.girl_time_of_birth",
+              "value": "={{ \n  (function(raw) {\n\n    // If empty, return null\n    if (!raw) return null;\n\n    // Convert to string, trim, lowercase\n    let s = String(raw).trim().toLowerCase();\n\n    // --- NORMALIZATION STEPS ---\n\n    // Remove extra spaces\n    s = s.replace(/\\s+/g, ' ');\n\n    // Convert . or - to :\n    // Handles inputs like \"6.30 am\" or \"6-30am\"\n    s = s.replace(/[.,-]/g, ':');\n\n    // Normalise AM/PM forms like \"a m\", \"a.m\", \"am\"\n    s = s.replace(/\\s*([ap])\\.?\\s*m?$/,' $1m');\n\n    // Remove trailing colon \"6:\" → \"6\"\n    s = s.replace(/[:]\\s*$/, '');\n\n    // --- CASE 1: USER ENTERED ONLY HOUR (e.g., \"6\", \"09\") ---\n    if (/^\\d{1,2}$/.test(s)) {\n      let h = parseInt(s,10);\n      return (h<10?'0':'') + h + ':00';     // Convert to HH:00\n    }\n\n    // --- CASE 2: USER ENTERS \"630\" OR \"0930\" ---\n    // Treat last 2 digits as minutes\n    if (/^\\d{3,4}$/.test(s)) {\n      let len = s.length;\n      let hh = parseInt(s.slice(0, len-2),10);\n      let mm = parseInt(s.slice(len-2),10);\n\n      // Only valid if hours ≤ 23 and minutes ≤ 59\n      if (hh<=23 && mm<=59)\n        return (hh<10?'0':'') + hh + ':' + (mm<10?'0':'') + mm;\n    }\n\n    // --- CASE 3: TRY STANDARD TIME FORMATS USING LUXON ---\n    // These formats cover inputs like:\n    // \"6 am\", \"6:30 am\", \"6:5 am\", \"18:30\", \"6pm\", \"06:30\"\n    const formats = ['h:mm a','h:m a','h a','ha','H:mm','H:m','H'];\n    for (const f of formats) {\n      const dt = DateTime.fromFormat(s, f);\n      if (dt.isValid) return dt.toFormat('HH:mm');\n    }\n\n    // If nothing works, return null\n    return null;\n\n  })(\n    // This is your original field\n    $('Razorpay Payment').item.json.body.payload.payment.entity.notes.girl_time_of_birth\n  )\n}}",
+              "type": "string"
+            },
+            {
+              "id": "e4640cac-8b79-453c-90e5-a03390cce128",
+              "name": "body.payload.payment.entity.notes.report_language",
+              "value": "={{ $json.body.payload.payment.entity.notes.report_language.trim().toLowerCase() === \"english\" ? \"en\" : \"hi\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1184,
+        96
+      ],
+      "id": "eae4f6b3-866d-4bbb-82cf-49d80ced6820",
+      "name": "Normalize User Input"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -736,
+        96
+      ],
+      "id": "8cf8fa8c-8248-4321-ab05-cff7e0fab3ac",
+      "name": "External API Cooldown",
+      "webhookId": "294c5d9c-28e4-4b7b-9cd3-69cb9591c088"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f7bcccef-2109-46fb-8009-bf3bef000a9f",
+              "leftValue": "={{ $('External Report Service').item.json.remaining_pdf_calls }}",
+              "rightValue": 10,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "db434e4b-68fc-41f9-b7e6-a8c190a1b2f0",
+      "name": "Credit Threshold Warning",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "472fc88a-a92c-4ad4-b220-7113d3aed7e6",
+              "leftValue": "={{ $json.messages[0].id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        192
+      ],
+      "id": "de03e2ee-13dd-4591-819e-07c3b5171710",
+      "name": "Delivery Confirmation"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -288,
+        192
+      ],
+      "id": "74fe93cf-365b-4eda-8494-ff19fa39d173",
+      "name": "Prepare Report Artifact"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://YOUR_STORAGE.supabase.co/storage/v1/object/YOUR_LINK",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        160,
+        192
+      ],
+      "id": "7be5f61c-33ae-462c-befc-95a3e0da93eb",
+      "name": "Persist Report File",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        },
+        "httpBasicAuth": {
+          "id": "ReOiuchLFIERaAgu",
+          "name": "Supabase Storage"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        192
+      ],
+      "id": "d38a4a87-f846-4e7a-9319-79c6d7b6644f",
+      "name": "Delivery Retry Buffer",
+      "webhookId": "7990b55e-1884-4aa4-b24c-c21fa9e074b1"
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "=YOUR_PHONE_NUMBER",
+        "recipientPhoneNumber": "=YOUR_PHONE_NUMBER",
+        "template": "=YOUR_WHATSAPP_TEMPLATE_TO_SEND_REPORT"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        192
+      ],
+      "id": "42cb34fb-0879-4fe4-bcf0-c6333399be6a",
+      "name": "Deliver Report to Customer",
+      "webhookId": "01083341-e72e-4edd-b9e6-f90d88b00fec",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "Z4RhN8J7G5LnqPPI",
+          "name": "WhatsApp account - Export Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "=YOUR_PHONE_NUMBER",
+        "recipientPhoneNumber": "=YOUR_PHONE_NUMBER",
+        "template": "=YOUR_WHATSAPP_TEMPLATE_FOR_PURCHASE_CONFIRMATION",
+        "components": {
+          "component": [
+            {
+              "bodyParameters": {
+                "parameter": [
+                  {
+                    "text": "20"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1184,
+        -96
+      ],
+      "id": "d489e0cb-17f9-4259-a347-ddffb34e7c15",
+      "name": "Send Payment Confirmation",
+      "webhookId": "9f4a7090-0a02-488d-a2e5-5bb8d4845caf",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "Z4RhN8J7G5LnqPPI",
+          "name": "WhatsApp account - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=--------\nNew Report Generated -  YOUR_REPORT_LINK\n--------",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -288,
+        -192
+      ],
+      "id": "1cd8c02e-428d-4aeb-a384-ed4f7ec27e7e",
+      "name": "Notify Ops – Report Ready",
+      "webhookId": "aca83608-1d7d-4339-8ee6-ccffd1431f54",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=Report Sent to YOUR_PHONE_NUMBER",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1056,
+        96
+      ],
+      "id": "db118017-17e9-4bc8-97da-60e137dadf90",
+      "name": "Notify Ops – Delivery Success",
+      "webhookId": "509fa1d5-91dd-46b0-bd3c-adab2a2c937c",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=Report Not Sent to YOUR_PHONE_NUMBER",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1056,
+        480
+      ],
+      "id": "b664e845-6916-4609-a900-6ea89ca577b7",
+      "name": "Notify Ops – Delivery Failure",
+      "webhookId": "83168243-39ad-46dc-a86a-29af34dfe6c7",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=Kundali Milan report generation failed for YOUR_PHONE_NUMBER",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -288,
+        576
+      ],
+      "id": "9e7e440a-fbcd-4cc6-a239-a8508a28ec3e",
+      "name": "Notify Ops – Fulfillment Error",
+      "webhookId": "af5070a7-cc9f-4333-ba89-eaa9f3b8fce2",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "=order_fulfillment_log",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=payment_id",
+              "fieldValue": "=payment_test_id"
+            },
+            {
+              "fieldId": "=phone",
+              "fieldValue": "=YOUR_PHONE_NUMBER"
+            },
+            {
+              "fieldId": "=email",
+              "fieldValue": "=support@example.com"
+            },
+            {
+              "fieldId": "=report_generated",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "=report_link",
+              "fieldValue": "=YOUR_REPORT_LINK"
+            },
+            {
+              "fieldId": "=amount",
+              "fieldValue": "=501"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -384
+      ],
+      "id": "2adec2f6-015d-4a02-ae0d-6ba50fac8781",
+      "name": "Track Fulfillment – Generated",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "=order_fulfillment_log",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=payment_id",
+              "fieldValue": "=payment_test_id"
+            },
+            {
+              "fieldId": "=phone",
+              "fieldValue": "=YOUR_PHONE_NUMBER"
+            },
+            {
+              "fieldId": "=email",
+              "fieldValue": "=support@example.com"
+            },
+            {
+              "fieldId": "=report_generated",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "=amount",
+              "fieldValue": "=501"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        384
+      ],
+      "id": "176625e1-cd72-45dd-ba2d-e7102b27ea38",
+      "name": "Track Fulfillment – Failed",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "=order_fulfillment_log",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "=email",
+              "condition": "eq",
+              "keyValue": "=support@example.com"
+            },
+            {
+              "keyName": "=payment_id",
+              "condition": "eq",
+              "keyValue": "=payment_test_id"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=report_sent",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "=report_name",
+              "fieldValue": "=YOUR_REPORT_NAME"
+            },
+            {
+              "fieldId": "=report_supabase",
+              "fieldValue": "=YOUR_REPORT_LINK"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -96
+      ],
+      "id": "95e278aa-4e72-4fac-8c60-0e509c9c5d24",
+      "name": "Track Delivery – Success",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "=order_fulfillment_log",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "=email",
+              "condition": "eq",
+              "keyValue": "=support@example.com"
+            },
+            {
+              "keyName": "=payment_id",
+              "condition": "eq",
+              "keyValue": "=payment_test_id"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=report_sent",
+              "fieldValue": "false"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        288
+      ],
+      "id": "fb85d88e-7cc3-4ed0-96ec-41d710ca911a",
+      "name": "Track Delivery – Failed",
+      "credentials": {
+        "supabaseApi": {
+          "id": "sfthjDnM0HlEqji7",
+          "name": "Supabase account - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1696,
+        0
+      ],
+      "id": "c96bc4e0-c995-41a0-8316-51bdc4d085a7",
+      "name": "Payment Success Webhook"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        192
+      ],
+      "id": "41b45604-a475-4185-ae4e-c1af1f940097",
+      "name": "Delivery Retry Buffer – Post Storage",
+      "webhookId": "f46a59fe-4524-49a8-88b1-39d22c27d321"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=Time to recharge bro! Only {{ $json.remaining_pdf_calls }} calls are remaining.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "a4efaffa-efca-4516-afcf-9f7967e8b4f3",
+      "name": "Ops Alert – Rate Limit Warning",
+      "webhookId": "7dd5d879-8030-408c-8196-02607ce14479",
+      "credentials": {
+        "slackApi": {
+          "id": "IotkWcm2B6bCks2j",
+          "name": "Slack account  - Export Credentials"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6106b0fe-4c69-4a20-9ade-e9bca9d37e12",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -512,
+        96
+      ],
+      "id": "8852a3ed-aacd-4149-af9b-4a565d183967",
+      "name": "Evaluate Report Generation"
+    },
+    {
+      "parameters": {
+        "url": "https://api.vedicastroapi.com/...",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "YOUR_API_KEY"
+            },
+            {
+              "name": "boy_name",
+              "value": "=BOY_NAME"
+            },
+            {
+              "name": "boy_dob",
+              "value": "=11/12/1991"
+            },
+            {
+              "name": "boy_tob",
+              "value": "=11:00 AM"
+            },
+            {
+              "name": "boy_pob",
+              "value": "=Gurgaon, Haryana"
+            },
+            {
+              "name": "boy_tz",
+              "value": "5.5"
+            },
+            {
+              "name": "girl_name",
+              "value": "=GIRL_NAME"
+            },
+            {
+              "name": "girl_dob",
+              "value": "=04/12/1996"
+            },
+            {
+              "name": "girl_tob",
+              "value": "=11:00 AM"
+            },
+            {
+              "name": "girl_pob",
+              "value": "=Hisar, Haryana"
+            },
+            {
+              "name": "girl_tz",
+              "value": "5.5"
+            },
+            {
+              "name": "style",
+              "value": "north"
+            },
+            {
+              "name": "lang",
+              "value": "=en"
+            },
+            {
+              "name": "boy_lat",
+              "value": "23.0000"
+            },
+            {
+              "name": "boy_lon",
+              "value": "80.0000"
+            },
+            {
+              "name": "girl_lon",
+              "value": "80.0000"
+            },
+            {
+              "name": "girl_lat",
+              "value": "23.0000"
+            },
+            {
+              "name": "company_name",
+              "value": "COMPANY_NAME"
+            },
+            {
+              "name": "website",
+              "value": "example.com"
+            },
+            {
+              "name": "email",
+              "value": "alerts@internal.system"
+            },
+            {
+              "name": "color",
+              "value": "#2B4C7E"
+            },
+            {
+              "name": "phone",
+              "value": "-"
+            },
+            {
+              "name": "address",
+              "value": "-"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -960,
+        96
+      ],
+      "id": "cefb2c9b-982a-443d-8ab3-aca938132112",
+      "name": "External Report Service"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Validate Payment Plan/Status": {
+      "main": [
+        [
+          {
+            "node": "Normalize User Input",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Payment Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize User Input": {
+      "main": [
+        [
+          {
+            "node": "External Report Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "External API Cooldown": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Report Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Credit Threshold Warning": {
+      "main": [
+        [
+          {
+            "node": "Ops Alert – Rate Limit Warning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delivery Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Notify Ops – Delivery Success",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Track Delivery – Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Track Delivery – Failed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Ops – Delivery Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Report Artifact": {
+      "main": [
+        [
+          {
+            "node": "Delivery Retry Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persist Report File": {
+      "main": [
+        [
+          {
+            "node": "Delivery Retry Buffer – Post Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delivery Retry Buffer": {
+      "main": [
+        [
+          {
+            "node": "Persist Report File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver Report to Customer": {
+      "main": [
+        [
+          {
+            "node": "Delivery Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment Success Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Payment Plan/Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delivery Retry Buffer – Post Storage": {
+      "main": [
+        [
+          {
+            "node": "Deliver Report to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Report Generation": {
+      "main": [
+        [
+          {
+            "node": "Prepare Report Artifact",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Ops – Report Ready",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Track Fulfillment – Generated",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Credit Threshold Warning",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Ops – Fulfillment Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Track Fulfillment – Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "External Report Service": {
+      "main": [
+        [
+          {
+            "node": "External API Cooldown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "nSuHsirH7uMBPzpX"
+  },
+  "versionId": "14efba78-c266-4390-83d9-4efb6b6e0a02",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b190d774a77c62336d9d3921e7d2d1e3765940e3c528e8ff3b7a9609335cba70"
+  },
+  "id": "YlvNunCgaaLChi6D",
+  "tags": []
+}
