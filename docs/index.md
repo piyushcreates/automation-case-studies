@@ -1,3 +1,10 @@
+<p align="right">
+  <img src="/automation-case-studies/assets/profile.png" 
+       alt="Piyush Sachdeva" 
+       width="120"
+       style="border-radius: 50%;" />
+</p>
+
 # Workflow Automation & Backend Orchestration
 
 I design and build production-grade automation systems using **n8n** to replace manual operations, reduce failure points, and create reliable event-driven workflows.
