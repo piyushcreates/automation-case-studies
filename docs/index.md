@@ -1,9 +1,15 @@
-<p align="right">
-  <img src="/automation-case-studies/assets/profile.png" 
-       alt="Piyush Sachdeva" 
-       width="120"
-       style="border-radius: 50%;" />
-</p>
+<div style="float: right; margin-left: 24px; text-align: center;">
+  <img 
+    src="/automation-case-studies/assets/profile.png" 
+    alt="Piyush Sachdeva"
+    width="110"
+    style="border-radius: 50%;" 
+  />
+</div>
+
+I’m a workflow automation engineer with a strong background in growth and operations.
+I design reliable, event-driven systems using n8n, APIs, and AI to replace manual processes,
+handle payments, and improve operational visibility.
 
 # Workflow Automation & Backend Orchestration
 
@@ -31,7 +37,7 @@ Post-payment actions were manual and fragmented, causing delays and missed follo
 **Solution:**  
 An event-driven workflow that listens to Razorpay payment events and coordinates customer messaging, CRM sync, internal notifications, and logging with explicit failure handling.
 
-[View case study →](/automation-case-studies/tree/main/razorpay-payment-webhook/)
+[View case study →](https://github.com/piyushcreates/automation-case-studies/tree/main/razorpay-payment-webhook)
 
 ---
 
@@ -44,7 +50,7 @@ Content research was manual and intuition-driven, making it hard to spot high-op
 **Solution:**  
 A scheduled pipeline that scores recent YouTube videos using engagement velocity and applies constrained AI analysis to deliver monetizable insights to Slack.
 
-[View case study →](/automation-case-studies/tree/main/youtube-content-opportunity-analysis/)
+[View case study →](https://github.com/piyushcreates/automation-case-studies/tree/main/youtube-content-opportunity-analysis)
 
 ---
 
@@ -57,7 +63,7 @@ Frontend applications needed a secure way to create payment orders without expos
 **Solution:**  
 A webhook-based backend API that validates input, maps pricing server-side, creates Razorpay orders, and returns the payload synchronously.
 
-[View case study →](/automation-case-studies/tree/main/razorpay-create-order-api/)
+[View case study →](https://github.com/piyushcreates/automation-case-studies/tree/main/razorpay-create-order-api)
 
 ---
 
@@ -70,7 +76,7 @@ Paid digital reports required reliable delivery with visibility into failures fr
 **Solution:**  
 A production-grade fulfillment pipeline triggered by payment success that normalizes input, orchestrates external report generation, stores artifacts, delivers reports, and alerts ops on failures.
 
-[View case study →](/automation-case-studies/tree/main/paid-report-fulfillment-pipeline/)
+[View case study →](https://github.com/piyushcreates/automation-case-studies/tree/main/paid-report-fulfillment-pipeline)
 
 ---
 
@@ -102,4 +108,5 @@ A production-grade fulfillment pipeline triggered by payment success that normal
 I build and maintain automation systems focused on reliability and maintainability, not one-off task chaining.
 
 [GitHub →](https://github.com/piyushcreates)
+
 [LinkedIn →](https://linkedin.com/in/sachdevapiyush/)
