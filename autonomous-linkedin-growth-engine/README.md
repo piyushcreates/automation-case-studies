@@ -24,6 +24,9 @@ The system uses a **Sequential Agentic Chain** where each AI agent has a distinc
 
 ![System Architecture](architecture.png)
 
+### n8n Workflow
+![n8n Workflow](n8n-workflow.png)
+
 1.  **Schedule Trigger:** Runs daily at 11:00 AM.
 2.  **Context Retrieval:** Fetches the last 30 days of posts from **Supabase** to prevent topic repetition.
 3.  **Agent 1: Topic Generator:**
