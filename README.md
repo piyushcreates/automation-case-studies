@@ -28,61 +28,29 @@ All credentials, client identifiers, and sensitive data are removed.
 
 ## Automation Case Studies
 
-### 1. Payment Webhook Automation: Razorpay → WhatsApp → CRM → Ops
+### 1. Autonomous LinkedIn Growth Engine: Multi-Agent AI Content Production
 
-**Problem:**  
-Post-payment actions were manual and fragmented, leading to delays, missed follow-ups, and poor visibility.
+**Problem:**
+Maintaining a consistent social media presence in highly regulated sectors (like disability support) is difficult because generic AI tools produce non-compliant claims, and human review is expensive.
 
-**Solution:**  
-An event-driven workflow that listens to Razorpay payment webhooks and orchestrates customer communication, CRM updates, internal alerts, and data persistence.
-
-**Key concepts demonstrated:**
-- Webhook-driven architecture
-- Conditional branching and failure handling
-- Multi-channel notifications (WhatsApp + Slack)
-- Persistent logging for auditability
-
-📁 `razorpay-payment-webhook/`
-
-### 2. Content Opportunity Analysis: YouTube → Data Scoring → AI Summary → Slack
-
-**Problem:**  
-Content research was manual, time-consuming, and heavily intuition-driven, making it difficult to consistently identify high-opportunity topics early.
-
-**Solution:**  
-A scheduled automation that collects recent YouTube data, scores videos based on engagement velocity, applies constrained AI analysis, and delivers monetizable insights directly to Slack.
+**Solution:**
+A sophisticated multi-agent AI pipeline that autonomously generates safe, compliance-first LinkedIn content. It uses a sequential chain of agents to generate topics, write content, and assign hashtags, all while enforcing negative constraints to prevent "over-promising."
 
 **Key concepts demonstrated:**
-- Scheduled automation
-- External API orchestration (YouTube)
-- Deterministic data scoring before AI
-- Controlled AI usage with strict output rules
-- Aggregation and delivery of actionable insights
+- Multi-agent architecture (Topic -> Content -> Hashtag agents)
+- "Safety-First" prompting strategies for regulated industries
+- Long-term memory via database history (preventing repetition)
+- Cryptographic hashing for duplicate detection
+- Automated auditing and logging
 
-📁 `youtube-content-opportunity-analysis/`
+📁 `autonomous-linkedin-growth-engine/`
 
-### 3. Create Payment Order API: Frontend → n8n → Razorpay
+### 2. Paid Report Fulfillment Pipeline: Payment → External API → Storage → WhatsApp
 
-**Problem:**  
-Frontend applications required a secure way to create Razorpay orders without exposing API keys or hardcoding pricing logic.
-
-**Solution:**  
-A webhook-based backend API that validates plan IDs, maps pricing server-side, creates Razorpay orders, and returns the order payload synchronously to the client.
-
-**Key concepts demonstrated:**
-- API-style webhook design
-- Input validation and guard clauses
-- Secure server-side payment orchestration
-- Synchronous request–response handling
-
-📁 `razorpay-create-order-api/`
-
-### 4. Paid Report Fulfillment Pipeline: Payment → External API → Storage → WhatsApp
-
-**Problem:**  
+**Problem:**
 Paid digital reports required reliable, timely delivery with clear visibility into failures caused by external APIs, rate limits, or messaging issues.
 
-**Solution:**  
+**Solution:**
 A production-grade fulfillment pipeline triggered by payment success that normalizes user input, orchestrates external report generation, stores artifacts durably, delivers reports to customers, and provides real-time ops visibility via Slack.
 
 **Key concepts demonstrated:**
@@ -94,12 +62,29 @@ A production-grade fulfillment pipeline triggered by payment success that normal
 
 📁 `paid-report-fulfillment-pipeline/`
 
-### 5. SFAIAHM Course Unlock Automation: Razorpay → Moodle | Payment-Based Course Access**
+### 3. Content Opportunity Analysis: YouTube → Data Scoring → AI Summary → Slack
 
-**Problem:**  
+**Problem:**
+Content research was manual, time-consuming, and heavily intuition-driven, making it difficult to consistently identify high-opportunity topics early.
+
+**Solution:**
+A scheduled automation that collects recent YouTube data, scores videos based on engagement velocity, applies constrained AI analysis, and delivers monetizable insights directly to Slack.
+
+**Key concepts demonstrated:**
+- Scheduled automation
+- External API orchestration (YouTube)
+- Deterministic data scoring before AI
+- Controlled AI usage with strict output rules
+- Aggregation and delivery of actionable insights
+
+📁 `youtube-content-opportunity-analysis/`
+
+### 4. SFAIAHM Course Unlock Automation: Razorpay → Moodle | Payment-Based Course Access
+
+**Problem:**
 Manual course activation after payment caused delays, errors, and operational overhead for a paid online course.
 
-**Solution:**  
+**Solution:**
 An event-driven automation triggered by Razorpay `payment.captured` webhooks that validates payment amounts, provisions users in Moodle, applies plan-based enrolment validity, and sends internal notifications for monitoring.
 
 **Key concepts demonstrated:**

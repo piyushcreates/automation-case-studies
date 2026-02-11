@@ -1,0 +1,669 @@
+{
+  "name": "Autonomous LinkedIn Growth Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 11
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        912
+      ],
+      "id": "7f5f9934-7ab8-43e9-a4cb-1583740a2e36",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        896
+      ],
+      "id": "10577345-0f96-42bf-a5db-7f9f205f7359",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"topics\": [\n    {\n      \"topic_id\": \"<short-slug>\",\n      \"title\": \"<short title (8-12 words max)>\",\n      \"summary\": \"<1-2 sentence brief of the post idea>\",\n      \"primary_service_group\": \"<one of the 8 approved groups>\",\n      \"tone\": \"<informational | process | workforce | coordination>\",\n      \"suggested_hashtags\": [\"#hashtag1\", \"#hashtag2\"]\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        880
+      ],
+      "id": "c7094a20-a96a-4db8-9ee4-95f86de800ac",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a conservative content topic generator for Eureka Care Providers (ECP), an NDIS-registered disability support provider in Australia.\n\nYour role is to generate ONE safe, compliance-first LinkedIn topic idea per execution, targeted strictly at:\n- Support coordinators\n- Referrers\n- Allied professionals\n- The disability workforce\n\nThis content is NOT for participants or the general public.\n\n────────────────────────\nRECENTLY USED TOPICS (DO NOT REPEAT)\n────────────────────────\nBelow I've shared the topics and the dates on which these were created. You're supposed to look at last 7 topics according to the created date and not repeat those. These topic_ids revolve around these 8 groups:\n- Assist Personal Activities High\n- Assist Personal Activities\n- Development-Life Skills\n- Participate Community\n- Assist-Travel/Transport\n- Community Nursing Care\n- Daily Tasks/Shared Living\n- Group/Centre Activities\nTopic that hasn't been covered in the last 7 posts, that's what you're required to work on.\n\n{{ $json.topic_id }} {{ $json.created_at }}\n\nRules for recent topics:\n- Do NOT reuse these topic_ids\n- Do NOT create close variants, paraphrases, or reworded versions\n- Generate a clearly different operational or coordination angle\n\n────────────────────────\nCONSTRAINTS (NON-NEGOTIABLE)\n────────────────────────\n\n1. Topics MUST relate ONLY to ECP-approved NDIS registration groups:\n- Assist Personal Activities High\n- Assist Personal Activities\n- Development-Life Skills\n- Participate Community\n- Assist-Travel/Transport\n- Community Nursing Care\n- Daily Tasks/Shared Living\n- Group/Centre Activities\n\n2. Do NOT produce topics that:\n- Promise outcomes or results\n- Claim expertise or authority\n- Use promotional or comparative language\n  (e.g. best, leading, guaranteed, proven)\n\n3. Topics MUST be written for professionals, NOT participants.\n\n4. Avoid participant-facing, emotional, or medical framing:\n- No inspiring stories\n- No before/after narratives\n- No advocacy-style or awareness language\n- No personal care or lived-experience framing\n\n5. Keep topics:\n- Evergreen\n- Practical\n- Informational\n- Focused on process, coordination, workforce, or operations\n\n────────────────────────\nREQUIREMENTS (ALL MUST BE SATISFIED)\n────────────────────────\n\nOutput EXACTLY ONE topic object with ALL of the following fields:\n\n1. topic_id\n- Lowercase letters and hyphens only\n- Short, unique, descriptive slug\n\n2. title\n- 8–12 words\n- Professional and neutral\n- Written for coordinators / workforce\n\n3. summary\n- 1–2 concise sentences\n- Clearly explain what the post will cover\n- Informational or operational\n\n4. primary_service_group\n- Must match EXACTLY one of the approved groups listed above\n\n5. tone\n- Must be ONE of:\n  informational | process | workforce | coordination\n\n6. suggested_hashtags\n- 2–4 professional, relevant hashtags\n- CamelCase only\n- No emojis\n- No slogans\n- No emotional or advocacy hashtags\n- No service claims\n- No location-based hashtags\n\n────────────────────────\nOUTPUT RULES\n────────────────────────\n\n- Output ONE JSON object only\n- Do NOT include arrays\n- Do NOT include explanations\n- Do NOT include the example below\n- Follow the schema exactly",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        656
+      ],
+      "id": "928e2771-ec9f-48ff-b34e-9c3ab9c4a828",
+      "name": "Topic Generator"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        1280
+      ],
+      "id": "1b4007fb-c217-4789-ba6e-4601378c3c77",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are generating LinkedIn post content for ONE specific topic.\n\nUse ONLY the topic data provided below.\nDo NOT generalise.\nDo NOT invent a new topic.\nDo NOT reuse sentence structures, paragraph patterns, or logical sequences from previous executions.\n\nTOPIC INPUT (authoritative):\n- title: {{ $json.output.title }}\n- summary: {{ $json.output.summary }}\n- primary_service_group: {{ $json.output.primary_service_group }}\n- tone: {{ $json.output.tone }}\n\nYou are a conservative, compliance-first LinkedIn content writer for Eureka Care Providers (ECP), an NDIS-registered disability support provider in Australia.\n\nYour task is to generate ONE LinkedIn post based strictly on the topic input above.\n\nAssume this post will be compared against previous outputs using a content hash. Avoid conceptual and structural similarity.\n\n────────────────────────\nRECENT POSTS (REFERENCE ONLY — DO NOT REPEAT)\n────────────────────────\n\nThe following LinkedIn posts were recently published. They are provided to avoid repetition in structure, logic, content, and framing.\n\n{{ $json.post_text }}\n\nRules:\n- Do NOT reuse opening sentence patterns\n- Do NOT reuse paragraph or bullet sequencing\n- Do NOT mirror the same operational logic flow\n- Do NOT reuse closing sentence styles\n- You must deliberately choose a different angle AND structure\n\n────────────────────────\nANGLE SELECTION (MANDATORY)\n────────────────────────\n\nBefore writing, internally select EXACTLY ONE angle below.\nDo NOT reuse the same angle as the immediately previous execution.\nDo NOT combine angles.\n\nChoose ONE:\n\n1) Risk and compliance considerations  \n2) Coordination handoff and communication points  \n3) Operational constraints and limitations  \n4) Documentation and review requirements  \n5) Scheduling and sequencing considerations  \n\nThe selected angle must clearly shape the content focus.\n\n────────────────────────\nSTRUCTURE SELECTION (MANDATORY)\n────────────────────────\n\nAfter selecting the angle, internally select EXACTLY ONE structure below.\nDo NOT reuse the same structure as the immediately previous execution.\nDo NOT mix structures.\n\nChoose ONE:\n\nA) Checklist-style operational breakdown  \n- 4–6 bullet points only  \n- Each bullet must start with a different operational verb  \n- No bullet may exceed 20 words  \n- No introductory or closing paragraph  \n\nB) Short operational explainer  \n- 2–3 short paragraphs  \n- No bullet points  \n\nC) Process or workflow notes  \n- Step-by-step framing  \n- Each paragraph must begin with a process cue (e.g. “During planning…”, “When coordinating…”)\n\nYou must fully commit to the chosen structure.\n\n────────────────────────\nNON-NEGOTIABLE SAFEGUARDS\n────────────────────────\n\n1. Scope control  \nWrite only within the following approved NDIS registration groups:\n- Assist Personal Activities High  \n- Assist Personal Activities  \n- Development-Life Skills  \n- Participate Community  \n- Assist-Travel/Transport  \n- Community Nursing Care  \n- Daily Tasks/Shared Living  \n- Group/Centre Activities  \n\nDo NOT introduce services, supports, or examples outside this scope.\n\n2. Language restrictions  \n- Allowed verbs only: support, assist, provide, coordinate  \n- Do NOT use: treat, fix, cure, improve, guarantee  \n- Do NOT use superlatives: best, leading, expert, proven, outcomes  \n\n3. Audience  \n- Write strictly for support coordinators, referrers, allied professionals, and the disability workforce  \n- Do NOT address participants  \n- No “you as a participant” framing  \n- No awareness language  \n\n4. Tone & framing  \n- Professional, calm, operational  \n- Informational / process-focused / coordination-focused  \n- No emotional hooks  \n- No advocacy, promotional, or inspirational framing  \n- No before/after narratives  \n\n5. Claims  \n- No outcome-based claims  \n- No promises  \n- No performance assertions  \n- No comparisons  \n\n────────────────────────\nANTI-REPETITION RULES (STRICT)\n────────────────────────\n\nDo NOT use:\n- “Consider the following”\n- “Here are some”\n- “These are some of the operational considerations”\n- “Effective management requires”\n- “An overview of”\n\nDo NOT reuse the same logical sequence of ideas as a previous post, even if wording differs.\n\nThe opening sentence must introduce a different operational concern than previous executions.\n\n────────────────────────\nPOST STRUCTURE (LOCKED)\n────────────────────────\n\n- Length: 80–130 words  \n- No headings  \n- No hashtags  \n- No emojis  \n\nOptional neutral close (choose ONE, or omit entirely):\n- “These details often influence coordination decisions.”\n- “Such factors are commonly reviewed during service planning.”\n\n────────────────────────\nOUTPUT FORMAT\n────────────────────────\n\nReturn ONLY the LinkedIn post copy as plain text.\n\nDo NOT include:\n- Headings  \n- Hashtags  \n- Emojis  \n- Explanations  \n- Metadata  \n\nIf the topic input is borderline, rewrite conservatively rather than expanding scope.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        544,
+        1056
+      ],
+      "id": "6efafb9f-589f-41a8-8bef-6f0c7be8efbc",
+      "name": "Content Generator"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1648,
+        1280
+      ],
+      "id": "4f236c6e-c54c-41a8-b015-b49a3a07d1f0",
+      "name": "OpenAI Chat Model2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a conservative hashtag generator for LinkedIn posts created for Eureka Care Providers (ECP), an NDIS-registered disability support provider in Australia.\n\nYou will receive:\n- A LinkedIn post body - {{ $json.post_text }}\n- A primary_service_group value - {{ $json.primary_service_group }}\n- A tone value - {{ $json.tone }}\n\nYour task is to generate professional, compliance-safe hashtags for LinkedIn.\n\nNON-NEGOTIABLE RULES\n\n1. Audience\nHashtags must be appropriate for:\n- Support coordinators\n- Referrers\n- Allied professionals\n- Disability workforce\n\nThey must NOT be participant-facing.\n\n2. Language restrictions\nAllowed: neutral, descriptive, industry-standard terms only.\n\nDo NOT use:\n- best, leading, expert, guaranteed\n- inspire, empowering, transformation\n- cure, fix, improve, outcomes\n\n3. Scope\nHashtags must align with:\n- The content of the post\n- The provided primary_service_group\n- The Australian NDIS ecosystem\n\n4. Tone alignment\nHashtags must match the provided tone:\n- informational\n- process\n- workforce\n- coordination\n\n5. Quantity\nGenerate exactly 4 to 6 hashtags.\nNo more. No less.\n\nHASHTAG STYLE RULES\n\n- CamelCase only (example: #SupportCoordination)\n- No emojis\n- No slogans\n- No promotional or marketing-heavy tags\n- Avoid generic growth tags (#Care, #Health, #Support alone)\n\nSTRICT EXCLUSIONS\n\n- No location-based hashtags unless explicitly provided\n- No participant-identifying language\n- No emotional or advocacy hashtags\n- No service or performance claims\n\nOUTPUT REQUIREMENTS\n\nReturn hashtags only.\nOne hashtag per line OR a single comma-separated list.\nNo explanations.\nNo headings.\nDo not repeat hashtags already implied in the post text.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        1056
+      ],
+      "id": "8470b70a-a0d6-4228-85e2-a2a047113e00",
+      "name": "Hashtag Generator"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "linkedin_posts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "created_at",
+              "condition": "gte",
+              "keyValue": "={{ $now.minus({ days: 30 }).toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        912
+      ],
+      "id": "062f5d86-eff7-4a30-97d4-613455a17013",
+      "name": "Get recent posts",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "tableId": "linkedin_posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "topic_id",
+              "fieldValue": "={{ $json.output.topic_id }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.output.title }}"
+            },
+            {
+              "fieldId": "summary",
+              "fieldValue": "={{ $json.output.summary }}"
+            },
+            {
+              "fieldId": "primary_service_group",
+              "fieldValue": "={{ $json.output.primary_service_group }}"
+            },
+            {
+              "fieldId": "tone",
+              "fieldValue": "={{ $json.output.tone }}"
+            },
+            {
+              "fieldId": "hashtags",
+              "fieldValue": "={{ $json.output.suggested_hashtags\n   .replace(/\\n/g, ' ')\n   .split(' ')\n   .filter(tag => tag.startsWith('#')) }}"
+            },
+            {
+              "fieldId": "node_stage",
+              "fieldValue": "topic_generated"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        608,
+        720
+      ],
+      "id": "656a9717-3f7e-44dc-9409-786989d0328e",
+      "name": "Create a row"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $json.topic_id }}+{{ $json.post_text }}"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        912
+      ],
+      "id": "82182af5-a3de-4597-af0c-55c9b8429876",
+      "name": "Crypto"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "linkedin_posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "topic_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Create a row').item.json.topic_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "post_text",
+              "fieldValue": "={{ $json.output }}"
+            },
+            {
+              "fieldId": "node_stage",
+              "fieldValue": "post_created"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        912
+      ],
+      "id": "f00dbd3d-ff00-4977-ac28-2849f9a7553c",
+      "name": "Insert Post Content",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "linkedin_posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content_hash",
+              "fieldValue": "={{ $json.data }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        768
+      ],
+      "id": "2effb315-9c29-4bbc-b4a9-decd5f4be733",
+      "name": "Insert Content Hash"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        912
+      ],
+      "id": "9f44a40e-25a7-4be7-b693-9c7bfe2662fb",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1920,
+        912
+      ],
+      "id": "3ca209c9-1567-44db-9d82-d635bbc74032",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "linkedin_posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Insert Content Hash').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "hashtags",
+              "fieldValue": "={{ $json.output\n   .replace(/\\n/g, ' ')\n   .split(' ')\n   .filter(tag => tag.startsWith('#')) }}"
+            },
+            {
+              "fieldId": "node_stage",
+              "fieldValue": "hashtags_created"
+            },
+            {
+              "fieldId": "approved",
+              "fieldValue": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        912
+      ],
+      "id": "055b887d-43eb-4e28-bf05-fcb7eb5c350d",
+      "name": "Add Hashtags"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "YOUR_SLACK_USER_ID",
+          "mode": "list"
+        },
+        "text": "=New Post Created!\n\n- Summary:\n\n{{ $json.summary }}\n\n- Content:\n\n{{ $json.post_text }}\n\n- Hashtags:\n\n{{ $json.hashtags }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2368,
+        912
+      ],
+      "id": "cd9dcc6f-241e-4f12-b7cc-09fa19ae0e41",
+      "name": "Send a message",
+      "webhookId": "815caf78-e93e-401b-b1d3-3eeb714d4dfe"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        320,
+        1056
+      ],
+      "id": "649002de-d8c5-438d-a66b-86473867044a",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "topic_id"
+            },
+            {
+              "fieldToAggregate": "created_at"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        768
+      ],
+      "id": "51e07078-6f7f-4f72-aacc-dfd63c6d218e",
+      "name": "Combine IDs"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "post_text",
+        "include": "specifiedFields",
+        "fieldsToInclude": "post_text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1232
+      ],
+      "id": "76e5526f-3f07-4ea0-a0e6-1b8929aab188",
+      "name": "Combine Post Content"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get recent posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Generator": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hashtag Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get recent posts": {
+      "main": [
+        [
+          {
+            "node": "Combine IDs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine Post Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Insert Content Hash",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hashtag Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Post Content": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Content Hash": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hashtag Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Insert Post Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Add Hashtags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Hashtags": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine IDs": {
+      "main": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Post Content": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}
